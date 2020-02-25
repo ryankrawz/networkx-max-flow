@@ -1,3 +1,8 @@
+import csv
+import os
+from random import randint
+from time import time
+
 import matplotlib.pyplot as plt
 import networkx as nx
 
@@ -13,7 +18,7 @@ class NetworkXDirectedGraph:
             self.dijkstra_max_flow = 0
         else:
             self.g = self.produce_graph_edge_list(graph_info)
-            self.bfs_max_flow = self.max_flow(self.BFS)
+            self.bfs_max_flow = self.max_flow(self.bfs)
             self.dijkstra_max_flow = self.max_flow(nx.dijkstra_path)
 
     @staticmethod
@@ -81,27 +86,74 @@ class NetworkXDirectedGraph:
         plt.show()
 
     @staticmethod
-    # Implements BFS as in Note1
-    def BFS(g, s, t):
+    # Implements breadth first search for path from s to t
+    def bfs(g, s, t):
         visited = [False] * (g.number_of_nodes() + 1)
         visited[int(s)] = True
-        # maintain a queue of paths
-        toExplore = []
-        # push the first path into the queue
-        toExplore.append([s])
-        while toExplore:
-            # get the first path from the queue
-            path = toExplore.pop(0)
-            # get the last node from the path
+        # Maintain a queue of paths
+        to_explore = [[s]]
+        while to_explore:
+            # Get the first path from the queue
+            path = to_explore.pop(0)
+            # Get the last node from the path
             node = path[-1]
-            # path found
+            # Path found
             if node == t:
                 return path
-            # enumerate all adjacent nodes, construct a new path and push it into the queue
+            # Enumerate all adjacent nodes, construct a new path and push it into the queue
             for neighbor in g.neighbors(node):
                 if not visited[int(neighbor)]:
                     visited[int(neighbor)] = True
                     new_path = list(path)
                     new_path.append(neighbor)
-                    toExplore.append(new_path)
+                    to_explore.append(new_path)
         return None
+
+
+# Generates CSV file containing average run times of a fixed bucket size at each step
+def analyze_run_time(num_steps, bucket_size):
+    csv_output = [['Number of edges', 'BFS run time (ms)', 'Dijkstra run time (ms)']]
+    for i in range(2, num_steps + 1):
+        # Generate input text file for graph
+        with open('temp_graph.txt', 'w+') as f:
+            if i > 2:
+                # Create a node for each step
+                for j in range(1, i + 1):
+                    for _ in range(3):
+                        # Give each node 3 neighbors
+                        random_node = randint(3, i)
+                        # Give each node random capacity from 1 to 3
+                        random_capacity = randint(1, 3)
+                        # Target node should have no outgoing edges
+                        if j == 2:
+                            f.write('%d %d {\'capacity\':%d}\n' % (random_node, j, random_capacity))
+                        else:
+                            f.write('%d %d {\'capacity\':%d}\n' % (j, random_node, random_capacity))
+            else:
+                f.write('1 2 {\'capacity\':%d}\n' % (randint(1, 3),))
+        nx_g = NetworkXDirectedGraph('temp_graph.txt', from_edge_list=True)
+        num_edges = len(nx_g.g.edges)
+        total_bfs_time = 0
+        total_dijkstra_time = 0
+        for _ in range(bucket_size):
+            # Aggregate run time for BFS-based max flow
+            bfs_before = time()
+            nx_g.max_flow(nx_g.bfs)
+            bfs_after = time()
+            total_bfs_time += bfs_after - bfs_before
+            # Aggregate run time for Dijkstra-based max flow
+            dijkstra_before = time()
+            nx_g.max_flow(nx.dijkstra_path)
+            dijkstra_after = time()
+            total_dijkstra_time += dijkstra_after - dijkstra_before
+        # Include average millisecond run times in CSV data
+        csv_output.append([
+            num_edges,
+            (total_bfs_time / bucket_size) * 1000,
+            (total_dijkstra_time / bucket_size) * 1000,
+        ])
+        os.remove('temp_graph.txt')
+    # Write run time data to CSV file
+    with open('run_times.csv', 'w+', newline='') as f:
+        csv_writer = csv.writer(f, delimiter=',')
+        csv_writer.writerows(csv_output)
