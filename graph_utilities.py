@@ -25,3 +25,28 @@ class NetworkXDirectedGraph:
         plt.subplot(111)
         nx.draw_shell(self.g, nlist=[range(5, 10), range(5)], with_labels=True, font_weight='bold')
         plt.show()
+
+    # Implements BFS as in Note1
+    def BFS(self, u):
+        # Mark all the vertices as not visited (line 1-2 in pseudo-code)
+        visited = [False] * (len(adjacency_matrix))
+
+        # Create a queue for BFS (line 3 in pseudo-code)
+        toExplore = []
+        S = []
+
+        # Mark the source node as visited and enqueue it
+        toExplore.append(u)
+        S.append(u)
+        visited[u] = True
+
+        while toExplore:
+
+            # Dequeue a vertex from queue and print it
+            s = queue.pop(0)
+
+            for i in self.g.neighbors(u):
+                if visited[i] == False:
+                    visited[i] = True
+                    toExplore.append(i)
+                    S.append(i)
