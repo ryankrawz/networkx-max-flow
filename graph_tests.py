@@ -114,8 +114,7 @@ class GraphTestEdgeList:
 
     def run_tests(self):
         self.test_edges()
-        # TODO: implement BFS algorithm
-        # self.test_max_flow_bfs()
+        self.test_max_flow_bfs()
         self.test_max_flow_dijkstra()
         self.test_nodes()
         print('\nAll tests successful\n')

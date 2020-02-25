@@ -13,8 +13,7 @@ class NetworkXDirectedGraph:
             self.dijkstra_max_flow = 0
         else:
             self.g = self.produce_graph_edge_list(graph_info)
-            # TODO: implement BFS algorithm
-            # self.bfs_max_flow = self.max_flow(self.BFS)
+            self.bfs_max_flow = self.max_flow(self.BFS)
             self.dijkstra_max_flow = self.max_flow(nx.dijkstra_path)
 
     @staticmethod
@@ -81,8 +80,11 @@ class NetworkXDirectedGraph:
         nx.draw_shell(self.g, with_labels=True, font_weight='bold')
         plt.show()
 
+    @staticmethod
     # Implements BFS as in Note1
     def BFS(g, s, t):
+        visited = [False] * (g.number_of_nodes() + 1)
+        visited[int(s)] = True
         # maintain a queue of paths
         toExplore = []
         # push the first path into the queue
@@ -97,7 +99,9 @@ class NetworkXDirectedGraph:
                 return path
             # enumerate all adjacent nodes, construct a new path and push it into the queue
             for neighbor in g.neighbors(node):
-                new_path = list(path)
-                new_path.append(neighbor)
-                toExplore.append(new_path)
+                if not visited[int(neighbor)]:
+                    visited[int(neighbor)] = True
+                    new_path = list(path)
+                    new_path.append(neighbor)
+                    toExplore.append(new_path)
         return None
