@@ -82,26 +82,22 @@ class NetworkXDirectedGraph:
         plt.show()
 
     # Implements BFS as in Note1
-    def BFS(self, u):
-        # Mark all the vertices as not visited (line 1-2 in pseudo-code)
-        visited = [False] * (len(adjacency_matrix))
-
-        # Create a queue for BFS (line 3 in pseudo-code)
+    def BFS(g, s, t):
+        # maintain a queue of paths
         toExplore = []
-        S = []
-
-        # Mark the source node as visited and enqueue it
-        toExplore.append(u)
-        S.append(u)
-        visited[u] = True
-
+        # push the first path into the queue
+        toExplore.append([s])
         while toExplore:
-
-            # Dequeue a vertex from queue and print it
-            s = queue.pop(0)
-
-            for i in self.g.neighbors(u):
-                if visited[i] == False:
-                    visited[i] = True
-                    toExplore.append(i)
-                    S.append(i)
+            # get the first path from the queue
+            path = toExplore.pop(0)
+            # get the last node from the path
+            node = path[-1]
+            # path found
+            if node == t:
+                return path
+            # enumerate all adjacent nodes, construct a new path and push it into the queue
+            for neighbor in g.neighbors(node):
+                new_path = list(path)
+                new_path.append(neighbor)
+                toExplore.append(new_path)
+        return None
