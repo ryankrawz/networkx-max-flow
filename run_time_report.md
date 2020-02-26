@@ -1,0 +1,3 @@
+# Run Time Report
+
+As expected, the maximum flow algorithm has a pseudo-polynomial time complexity with respect to the number of edges when implementing breadth-first search or Dijkstra's algorithm. As indicated by the graph found in `run_times_graph.png`, the regressions with the lowest variance for breadth-first search and Dijkstra's algorithm were `0.0180x^1.0081` and `0.0183x^1.0405` respectively, also supporting pseudo-polynomial run time. The data indicates breadth-first search is slightly more efficient, likely due to the fact that it consistently performed better in the worst cases, specifically in the edge ranges 569 to 601, 825 to 841, and 977 to 993.
